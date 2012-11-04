@@ -6,7 +6,7 @@ using System.Drawing;
 using System.Linq;
 using System.Text;
 
-namespace MRO4_Skeletonization
+namespace MRO_Cursach
 {
     class Skeletonizator
     {
@@ -91,7 +91,6 @@ namespace MRO4_Skeletonization
             //if ((brightnessMatrix[x + 1, y] == 0) && (brightnessMatrix[x - 1, y] == 1) && (brightnessMatrix[x, y - 1] == 1) && (brightnessMatrix[x, y + 1] == 1) && (brightnessMatrix[x - 1, y - 1] == 1) && (brightnessMatrix[x + 1, y - 1] == 1) && (brightnessMatrix[x + 1, y + 1] == 1) && (brightnessMatrix[x - 1, y + 1] == 1)) return true;
             if ((brightnessMatrix[x + 1, y] == 1) && (brightnessMatrix[x - 1, y] == 1) && (brightnessMatrix[x, y - 1] == 1) && (brightnessMatrix[x, y + 1] == 1) && (brightnessMatrix[x - 1, y - 1] == 1) && (brightnessMatrix[x + 1, y - 1] == 1) && (brightnessMatrix[x + 1, y + 1] == 0) && (brightnessMatrix[x - 1, y + 1] == 1)) return true;
             if ((brightnessMatrix[x + 1, y] == 1) && (brightnessMatrix[x - 1, y] == 1) && (brightnessMatrix[x, y - 1] == 1) && (brightnessMatrix[x, y + 1] == 1) && (brightnessMatrix[x - 1, y - 1] == 1) && (brightnessMatrix[x + 1, y - 1] == 0) && (brightnessMatrix[x + 1, y + 1] == 1) && (brightnessMatrix[x - 1, y + 1] == 1)) return true;
-
 
             return false;
         }

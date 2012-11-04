@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Drawing;
 
-namespace MRO4_Skeletonization
+namespace MRO_Cursach
 {
     class Blur
     {

@@ -10,129 +10,140 @@ using System.Diagnostics;
 
 public class ImageWorker
 {
-    private Bitmap image;//////////////modific!!
+    //private int[,] brigthnessMAtrix;
 
-    public Bitmap Image
+    public ImageWorker()
     {
-        set
-        {
-            image = value;
-        }
-        get
-        {
-            return image;
-        }
     }
 
-
-    public ImageWorker(Bitmap img)
+    private int[,] FillBrightnessMatrix(Image image)
     {
-        image = img;
-        //Binaryzation1();
-        //DeleteSinglePixels();
-        //FillSinglePixels();
-        //RotateImage(2.3f);
+        Bitmap bitmapImage = (Bitmap)image;
+        int imageWidth = bitmapImage.Width;
+        int imageHeight = bitmapImage.Height;
+        int[,] bm = new int[imageWidth, imageHeight];
+        Array.Clear(bm, 0, imageWidth * imageHeight);
+
+        for (int i = 0; i < imageHeight; i++)
+        {
+            for (int j = 0; j < imageWidth; j++)
+            {
+                if (bitmapImage.GetPixel(j, i).GetBrightness() == 0)
+                {
+                    bm[j, i] = 1;
+                }
+                else
+                {
+                    bm[j, i] = 0;
+                }
+            }
+        }
+        return bm;
     }
 
-    public List<Bitmap> letters = new List<Bitmap>();
-    public void SplitToLetters()
+    public List<Image> SplitToLetters(Image image)
     {
-        Stopwatch sw = new Stopwatch();
-        sw.Start();
-
-        bool letter = false;
+        List<Image> letters = new List<Image>();
+        int[,] brigthnessMatrix = FillBrightnessMatrix(image);
+        int imageWidth = image.Width;
+        int imageHeight = image.Height;
+        Bitmap bitmapImage = (Bitmap)image;
+        bool isLetter = false;
         int start = 0;
-        for (int i = 0; i < image.Width; i++)
+        for (int i = 0; i < imageWidth; i++)
         {
             int counter = 0;
-            for (int j = 0; j < image.Height; j++)
+            for (int j = 0; j < imageHeight; j++)
             {
-                if (image.GetPixel(i, j).GetBrightness() >= theta)/////white
+                if (brigthnessMatrix[i, j] == 0)/////white
                 {
                     counter++;
                 }
                 else
                 {
-                    if (letter == false)
+                    if (isLetter == false)
                     {
-                        letter = true;
+                        isLetter = true;
                         start = i;
                     }
                     break;
                 }
             }
-            if ((counter == image.Height) && (letter == true))
+            if ((counter == imageHeight) && (isLetter == true))
             {
-                Bitmap temp = image.Clone(new Rectangle(start, 0, i - start, counter), System.Drawing.Imaging.PixelFormat.Format32bppRgb);
-
+                Bitmap temp = bitmapImage.Clone(new Rectangle(start, 0, i - start, counter), System.Drawing.Imaging.PixelFormat.Format32bppRgb);
                 letters.Add(temp);
-                letter = false;
+                isLetter = false;
             }
         }
-
-        sw.Stop();
-        //MessageBox.Show(sw.Elapsed.ToString());
+        return letters;
     }
 
-    public Bitmap FirstLetter()
+    public Image FirstLetter(Image image)
     {
-        //find first letter
-        bool letter = false;
+        int[,] brigthnessMatrix = FillBrightnessMatrix(image);
+        int imageWidth = image.Width;
+        int imageHeight = image.Height;
+        Bitmap bitmapImage = (Bitmap)image;
+        bool isLetter = false;
         int start = 0;
-        for (int i = 0; i < image.Width; i++)
+        for (int i = 0; i < imageWidth; i++)
         {
             int counter = 0;
-            for (int j = 0; j < image.Height; j++)
+            for (int j = 0; j < imageHeight; j++)
             {
-                if (image.GetPixel(i, j).GetBrightness() >= theta)/////white
+                if (brigthnessMatrix[i, j] == 0)
                 {
                     counter++;
                 }
                 else
                 {
-                    if (letter == false)
+                    if (isLetter == false)
                     {
-                        letter = true;
+                        isLetter = true;
                         start = i;
                     }
                     break;
                 }
             }
-            if ((counter == image.Height) && (letter == true))
+            if ((counter == imageHeight) && (isLetter == true))
             {
-                return image.Clone(new Rectangle(start, 0, i - start, counter), System.Drawing.Imaging.PixelFormat.Format32bppRgb);
+                return bitmapImage.Clone(new Rectangle(start, 0, i - start, counter), System.Drawing.Imaging.PixelFormat.Format32bppRgb);
             }
         }
         return null;
     }
 
-    public Bitmap LastLetter()
+    public Image LastLetter(Image image)
     {
-        //find first letter
-        bool letter = false;
+        int[,] brigthnessMatrix = FillBrightnessMatrix(image);
+        int imageWidth = image.Width;
+        int imageHeight = image.Height;
+        Bitmap bitmapImage = (Bitmap)image;
+        bool isLetter = false;
         int start = 0;
-        for (int i = image.Width-1; i >= 0; i--)
+        for (int i = imageWidth - 1; i >= 0; i--)
         {
             int counter = 0;
-            for (int j = 0; j < image.Height; j++)
+            for (int j = 0; j < imageHeight; j++)
             {
-                if (image.GetPixel(i, j).GetBrightness() >= theta)/////white
+                if (brigthnessMatrix[i, j] == 0)//white
                 {
                     counter++;
                 }
                 else
                 {
-                    if (letter == false)
+                    if (isLetter == false)
                     {
-                        letter = true;
+                        isLetter = true;
                         start = i;
                     }
                     break;
                 }
             }
-            if ((counter == image.Height) && (letter == true))
+            if ((counter == image.Height) && (isLetter == true))
             {
-                return image.Clone(new Rectangle(i + 1, 0, start - i, counter), System.Drawing.Imaging.PixelFormat.Format32bppRgb);
+                return bitmapImage.Clone(new Rectangle(i + 1, 0, start - i, counter), System.Drawing.Imaging.PixelFormat.Format32bppRgb);
             }
         }
         return null;
@@ -140,75 +151,13 @@ public class ImageWorker
 
     public void SetImageHorizontally()
     {
-        for (int i = 0; i < image.Height; i++)
-        {
-            for (int j = 0; j < image.Width; j++)
-            {
-                if (image.GetPixel(j, i).GetBrightness() <= theta)//black
-                {
-
-                }
-            }
-        }
+        
     }
 
-    int[,] mat = new int[1000, 180];
-    public Bitmap Haf()
+    private Image RotateImage(Image image, float angle)
     {
-        for (int i = 0; i < 1000; i++)
-        {
-            for (int j = 0; j < 180; j++)
-            {
-                mat[i,j] = 0;
-            }
-        }
-
-
-        for (int i = 0; i < image.Height; i++)
-        {
-            for (int j = 0; j < image.Width; j++)
-            {
-                if (image.GetPixel(j, i).GetBrightness() <= 0.3)//black
-                {
-                    for (int n = 0; n < 800; n++)
-                    {
-                        for (int m = 0; m < 180; m++)
-                        {
-                            double teta = (double)m / 180 * Math.PI;
-                            if (Math.Abs(((i + 1) * Math.Sin(teta) + (j + 1) * Math.Cos(teta)) - n) < 0.1)
-                            {
-                                mat[n, m] += 1;
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
-        Bitmap b = new Bitmap(900, 180);
-
-        for (int i = 0; i < 900; i++)
-        {
-            for (int j = 0; j < 180; j++)
-            {
-                if (mat[i, j] > 255)
-                {
-                    b.SetPixel(j, i, Color.FromArgb(255, 255, 255));
-                }
-                else
-                {
-                    b.SetPixel(j, i, Color.FromArgb(mat[i, j], mat[i, j], mat[i, j]));
-                }
-            }
-        }
-
-        return b;
-    }
-
-    private void RotateImage(float angle)
-    {
-        Bitmap res = new Bitmap(image.Width, image.Height);
-        Graphics g = Graphics.FromImage(res);
+        Bitmap result = new Bitmap(image.Width, image.Height);
+        Graphics g = Graphics.FromImage(result);
         g.Clear(Color.White);
         float tx = (float)image.Width / 2;
         float ty = (float)image.Height / 2;
@@ -217,320 +166,108 @@ public class ImageWorker
         g.TranslateTransform(-tx, -ty);
         g.DrawImage(image, 0, 0, image.Width, image.Height);
 
-        image = res;
-        //return res;
+        return result;
     }
 
-    const double theta = 0.3;
-    public void Binaryzation1()//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    public Image DeleteSinglePixels(Image image)
     {
-        for (int i = 0; i < image.Height; i++)
-        {
-            for (int j = 0; j < image.Width; j++)
-            {
-                if (image.GetPixel(j, i).GetBrightness() <= theta)//black
-                {
-                    image.SetPixel(j, i, Color.Black);
-                }
-                else
-                {
-                    image.SetPixel(j, i, Color.White);
-                }
-            }
-        }
-    }
-
-    public void Binaryzation()//ABCDEFGHIJKLMNOPQRSTUVWXYZ Y = 0.299*R + 0.587*G + 0.114*B
-    {
-        Stopwatch sw = new Stopwatch();
-        sw.Start();
-
-        float[,] tresholds = FindTreshold(6);
-        
-        for (int i = 0; i < image.Height; i++)
-        {
-            for (int j = 0; j < image.Width; j++)
-            {
-                if (image.GetPixel(j, i).GetBrightness() <= tresholds[j,i])//black
-                {
-                    image.SetPixel(j, i, Color.Black);
-                }
-                else
-                {
-                    image.SetPixel(j, i, Color.White);
-                }
-            }
-        }
-
-        sw.Stop();
-        MessageBox.Show(sw.ElapsedMilliseconds.ToString());
-    }
-
-    private float[,] FindTreshold(int ambitRadius)
-    {
-        int imageWidth=image.Width;
-        int imageHeight=image.Height;
-
-        List<float> temp=new List<float>();
-        float[,] tresholds = new float[imageWidth, imageHeight];
-        //int half = ambit / 2;
-
-        for (int i = 0; i < imageHeight; i++)
-        {
-            for (int j = 0; j < imageWidth; j++)
-            {
-                temp.Clear();
-                for (int n = i - ambitRadius; n <= i + ambitRadius; n++)
-                {
-                    for (int m = j - ambitRadius; m <= j + ambitRadius; m++)
-                    {
-                        if ((n >= 0) && (m >= 0) && (n < imageHeight) && (m < imageWidth))
-                        {
-                            temp.Add(image.GetPixel(m,n).GetBrightness());
-                        }
-                    }
-                }
-                tresholds[j, i] = 3*(temp.Max() - temp.Min()) / 5;
-            }
-        }
-
-        return tresholds;
-    }
-
-    public void Binaryzation3()
-    {
-        Stopwatch sw = new Stopwatch();
-        sw.Start();
-
-        float[,] tresholds = FindTreshold3(6);
-
-        for (int i = 0; i < image.Height; i++)
-        {
-            for (int j = 0; j < image.Width; j++)
-            {
-                if (image.GetPixel(j, i).GetBrightness() <= tresholds[j, i])//black
-                {
-                    image.SetPixel(j, i, Color.Black);
-                }
-                else
-                {
-                    image.SetPixel(j, i, Color.White);
-                }
-            }
-        }
-
-        sw.Stop();
-        MessageBox.Show(sw.ElapsedMilliseconds.ToString());
-    }
-
-    private float[,] FindTreshold3(int ambitRadius)
-    {
+        int[,] brigthnessMatrix = FillBrightnessMatrix(image);
         int imageWidth = image.Width;
         int imageHeight = image.Height;
-
-        List<float> temp = new List<float>();
-        List<float> temp2 = new List<float>();
-        float[,] tresholds = new float[imageWidth, imageHeight];
-        //int half = ambit / 2;
-
-        for (int i = 0; i < imageHeight; i++)
+        Bitmap bitmapImage = (Bitmap)image;
+        Bitmap result = new Bitmap(image);
+        for (int i = 1; i < imageHeight - 1; i++)
         {
-            for (int j = 0; j < imageWidth; j++)
+            for (int j = 1; j < imageWidth - 1; j++)
             {
-                temp.Clear();
-                for (int n = i - ambitRadius; n <= i + ambitRadius; n++)
+                if ((brigthnessMatrix[j, i] == 1) &&//black
+                    (brigthnessMatrix[j + 1, i] == 0) &&
+                    (brigthnessMatrix[j - 1, i] == 0) &&
+                    (brigthnessMatrix[j, i + 1] == 0) &&
+                    (brigthnessMatrix[j, i - 1] == 0) &&
+                    (brigthnessMatrix[j + 1, i + 1] == 0) &&
+                    (brigthnessMatrix[j - 1, i - 1] == 0) &&
+                    (brigthnessMatrix[j + 1, i - 1] == 0) &&
+                    (brigthnessMatrix[j - 1, i + 1] == 0))
                 {
-                    for (int m = j - ambitRadius; m <= j + ambitRadius; m++)
-                    {
-                        if ((n >= 0) && (m >= 0) && (n < imageHeight) && (m < imageWidth))
-                        {
-                            float brightless = image.GetPixel(m, n).GetBrightness();
-                            temp.Add(brightless);
-                            temp2.Add(brightless * brightless);
-                        }
-                    }
+                    result.SetPixel(j, i, Color.White);
                 }
-                float avge=temp.Average();
-                float d = temp2.Average() - avge * avge;
-                tresholds[j, i] = avge + 0.3f * d;
             }
         }
-
-        return tresholds;
+        return result;
     }
 
-    private int Brightless(int x, int y)
+    public Image FillSinglePixels(Image image)
     {
-        int i = (int)(0.299 * image.GetPixel(x, y).R + 0.587 * image.GetPixel(x, y).G + 0.114 * image.GetPixel(x, y).B) / 3;
-        //int i = (int)(image.GetPixel(x, y).R + image.GetPixel(x, y).G + image.GetPixel(x, y).B) / 3;
-        return i;
-    }
-
-    public void AdaptiveTreshold(int s, int t)
-    {
+        int[,] brigthnessMatrix = FillBrightnessMatrix(image);
         int imageWidth = image.Width;
         int imageHeight = image.Height;
-        int[,] intImage = new int[imageWidth,imageHeight];
-        int sum;
-        for (int i = 0; i < imageHeight; i++)
+        Bitmap bitmapImage = (Bitmap)image;
+        Bitmap result = new Bitmap(image);
+        for (int i = 1; i < imageHeight - 1; i++)
         {
-            sum = 0;
-            for (int j = 0; j < imageWidth; j++)
+            for (int j = 1; j < imageWidth - 1; j++)
             {
-                sum += Brightless(j, i);
-                if (i == 0)
+                if ((brigthnessMatrix[j, i] == 0) &&//white
+                    (brigthnessMatrix[j + 1, i] == 1) &&
+                    (brigthnessMatrix[j - 1, i] == 1) &&
+                    (brigthnessMatrix[j, i + 1] == 1) &&
+                    (brigthnessMatrix[j, i - 1] == 1) &&
+                    (brigthnessMatrix[j + 1, i + 1] == 1) &&
+                    (brigthnessMatrix[j - 1, i - 1] == 1) &&
+                    (brigthnessMatrix[j + 1, i - 1] == 1) &&
+                    (brigthnessMatrix[j - 1, i + 1] == 1))
                 {
-                    intImage[j, i] = sum;
-                }
-                else
-                {
-                    intImage[j, i] = intImage[j, i - 1] + sum;
+                    result.SetPixel(j, i, Color.Black);
                 }
             }
         }
-
-        for (int i = 0; i < imageHeight; i++)
-        {
-            for (int j = 0; j < imageWidth; j++)
-            {
-                int x1 = j - s / 2;
-                int x2 = j + s / 2;
-                int y1 = i - s / 2;
-                int y2 = i + s / 2;
-
-                if (x1 < 0)
-                    x1 = 0;
-
-                if (y1 < 0)
-                    y1 = 0;
-
-                if (x2 >= imageWidth)
-                    x2 = imageWidth - 1;
-
-                if (y2 >= imageHeight)
-                    y2 = imageHeight - 1;
-
-                int count = (x2 - x1) * (y2 - y1);
-                int summa;
-                if ((x1 - 1 < 0) && (y1 - 1 < 0))
-                {
-                    //summa = intImage[y2, x2] - intImage[0,x2] - intImage[y2,0] + intImage[0, 0];
-                    summa = intImage[x2, y2] - intImage[x2, 0] - intImage[0, y2] + intImage[0, 0];
-                }
-                else if (x1 - 1 < 0)
-                {
-                    //summa = intImage[y2, x2] - intImage[ y1 - 1,x2] - intImage[ y2,0] + intImage[ y1 - 1,0];
-                    summa = intImage[x2, y2] - intImage[x2, y1 - 1] - intImage[0, y2] + intImage[0, y1 - 1];
-                }
-                else if (y1 - 1 < 0)
-                {
-                    //summa = intImage[y2, x2] - intImage[0,x2] - intImage[y2,x1 - 1] + intImage[0,x1 - 1];
-                    summa = intImage[x2, y2] - intImage[x2, 0] - intImage[x1 - 1, y2] + intImage[x1 - 1, 0];
-                }
-                else
-                {
-                    //summa = intImage[y2, x2] - intImage[y1 - 1, x2] - intImage[y2, x1 - 1] + intImage[y1 - 1, x1 - 1];
-                    summa = intImage[x2, y2] - intImage[x2, y1 - 1] - intImage[x1 - 1, y2] + intImage[x1 - 1, y1 - 1];
-                }
-
-                float f = summa * (float)(100 - t) / (float)100;
-                if (Brightless(j, i) * count <= f)
-                {
-                    image.SetPixel(j, i, Color.Black);
-                }
-                else
-                {
-                    image.SetPixel(j, i, Color.White);
-                }
-            }
-        }
+        return result;
     }
 
-    
-
-    public void DeleteSinglePixels()
+    public Image Erosion(Image image)
     {
-        Bitmap temp = new Bitmap(image);
-        for (int i = 1; i < image.Height-1; i++)
+        int[,] brigthnessMatrix = FillBrightnessMatrix(image);
+        int imageWidth = image.Width;
+        int imageHeight = image.Height;
+        Bitmap bitmapImage = (Bitmap)image;
+        Bitmap result = new Bitmap(image);
+        for (int i = 1; i < imageHeight - 1; i++)
         {
-            for (int j = 1; j < image.Width-1; j++)
+            for (int j = 1; j < imageWidth - 1; j++)
             {
-                if ((image.GetPixel(j, i).GetBrightness() <= theta) &&//black
-                    (image.GetPixel(j + 1, i).GetBrightness() > theta) &&
-                    (image.GetPixel(j - 1, i).GetBrightness() > theta) &&
-                    (image.GetPixel(j, i + 1).GetBrightness() > theta) &&
-                    (image.GetPixel(j, i - 1).GetBrightness() > theta) &&
-                    (image.GetPixel(j + 1, i + 1).GetBrightness() > theta) &&
-                    (image.GetPixel(j - 1, i - 1).GetBrightness() > theta) &&
-                    (image.GetPixel(j + 1, i - 1).GetBrightness() > theta) &&
-                    (image.GetPixel(j - 1, i + 1).GetBrightness() > theta))
+                if (((brigthnessMatrix[j, i] == 1)) &&
+                    ((brigthnessMatrix[j, i + 1] == 0) ||
+                    //(brigthnessMatrix[j, i - 1] == 0) ||
+                    (brigthnessMatrix[j + 1, i] == 0)))
                 {
-                    temp.SetPixel(j, i, Color.White);
+                    result.SetPixel(j, i, Color.White);
                 }
             }
         }
-        image = temp;
+        return result;
     }
 
-    public void FillSinglePixels()
+    public Image Extension(Image image)
     {
-        Bitmap temp = new Bitmap(image);
-        for (int i = 1; i < image.Height - 1; i++)
+        int[,] brigthnessMatrix = FillBrightnessMatrix(image);
+        int imageWidth = image.Width;
+        int imageHeight = image.Height;
+        Bitmap bitmapImage = (Bitmap)image;
+        Bitmap result = new Bitmap(image);
+        for (int i = 1; i < imageHeight - 1; i++)
         {
-            for (int j = 1; j < image.Width - 1; j++)
+            for (int j = 1; j < imageWidth - 1; j++)
             {
-                if ((image.GetPixel(j, i).GetBrightness() > theta) &&
-                    (image.GetPixel(j + 1, i).GetBrightness()<= theta) &&
-                    (image.GetPixel(j - 1, i).GetBrightness() <= theta) &&
-                    (image.GetPixel(j, i + 1).GetBrightness() <= theta) &&
-                    (image.GetPixel(j, i - 1).GetBrightness() <= theta) &&
-                    (image.GetPixel(j + 1, i + 1).GetBrightness() <= theta) &&
-                    (image.GetPixel(j - 1, i - 1).GetBrightness() <= theta) &&
-                    (image.GetPixel(j + 1, i - 1).GetBrightness() <= theta) &&
-                    (image.GetPixel(j - 1, i + 1).GetBrightness() <= theta))
+                if (((brigthnessMatrix[j, i] == 0)) &&
+                    ((brigthnessMatrix[j, i + 1] == 1) ||
+                    //(brigthnessMatrix[j, i - 1] ==1) ||
+                    (brigthnessMatrix[j + 1, i] == 1)))
                 {
-                    temp.SetPixel(j, i, Color.Black);
+                    result.SetPixel(j, i, Color.Black);
                 }
             }
         }
-        image = temp;
-    }
-
-    public void Erosion()
-    {
-        Bitmap temp = new Bitmap(image);
-        for (int i = 1; i < image.Height - 1; i++)
-        {
-            for (int j = 1; j < image.Width - 1; j++)
-            {
-                if (((image.GetPixel(j, i).GetBrightness() <= theta)) &&
-                    ((image.GetPixel(j, i+1).GetBrightness() > theta) ||
-                    //(image.GetPixel(j , i-1).GetBrightness() > theta) ||
-                    (image.GetPixel(j + 1, i ).GetBrightness() > theta)))
-                {
-                    temp.SetPixel(j, i, Color.White);
-                }
-            }
-        }
-        image = temp;
-    }
-
-    public void Extension()
-    {
-        Bitmap temp = new Bitmap(image);
-        for (int i = 1; i < image.Height - 1; i++)
-        {
-            for (int j = 1; j < image.Width - 1; j++)
-            {
-                if (((image.GetPixel(j, i).GetBrightness() > theta)) &&
-                    ((image.GetPixel(j , i+1).GetBrightness() <= theta) ||
-                    //(image.GetPixel(j - 1, i).GetBrightness() <= theta) ||
-                    (image.GetPixel(j + 1, i).GetBrightness() <= theta)))
-                {
-                    temp.SetPixel(j, i, Color.Black);
-                }
-            }
-        }
-        image = temp;
+        return result;
     }
 }
