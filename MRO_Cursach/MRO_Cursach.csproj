@@ -48,6 +48,7 @@
   <ItemGroup>
     <Compile Include="Binaryzator.cs" />
     <Compile Include="Blur.cs" />
+    <Compile Include="CritheriaFinder.cs" />
     <Compile Include="Form1.cs">
       <SubType>Form</SubType>
     </Compile>

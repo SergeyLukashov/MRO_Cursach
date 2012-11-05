@@ -10,8 +10,6 @@ using System.Diagnostics;
 
 public class ImageWorker
 {
-    //private int[,] brigthnessMAtrix;
-
     public ImageWorker()
     {
     }
@@ -262,6 +260,7 @@ public class ImageWorker
                 if (((brigthnessMatrix[j, i] == 0)) &&
                     ((brigthnessMatrix[j, i + 1] == 1) ||
                     //(brigthnessMatrix[j, i - 1] ==1) ||
+                    //(brigthnessMatrix[j - 1, i] == 1) ||
                     (brigthnessMatrix[j + 1, i] == 1)))
                 {
                     result.SetPixel(j, i, Color.Black);

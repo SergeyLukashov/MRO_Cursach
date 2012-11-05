@@ -131,7 +131,9 @@ namespace MRO_Cursach
             {
                 for (int j = 1; j < imageWidth + 1; j++)
                 {
-                    if (DeletableOnFirstStep(new Point(j, i)))
+                    Point currentPoint = new Point(j, i);
+                    int[] pixelArray = CreatePixelArray(currentPoint);
+                    if (DeletableOnFirstStep(currentPoint, pixelArray))
                     {
                         firstStepRezult.SetPixel(j - 1, i - 1, Color.White);
                     }
@@ -144,7 +146,9 @@ namespace MRO_Cursach
             {
                 for (int j = 1; j < imageWidth + 1; j++)
                 {
-                    if (DeletableOnSecondStep(new Point(j, i)))
+                    Point currentPoint = new Point(j, i);
+                    int[] pixelArray = CreatePixelArray(currentPoint);
+                    if (DeletableOnSecondStep(currentPoint, pixelArray))
                     {
                         secondStepRezult.SetPixel(j - 1, i - 1, Color.White);
                     }
@@ -153,28 +157,25 @@ namespace MRO_Cursach
             return secondStepRezult;
         }
 
-        private bool DeletableOnFirstStep(Point pixel)
+        private bool DeletableOnFirstStep(Point pixel, int[] pixelArray)
         {
-            int[] pixelArray = CreatePixelArray(pixel);
             int critheria1 = pixelArray[0] * pixelArray[2] * pixelArray[4];
             int critheria2 = pixelArray[2] * pixelArray[4] * pixelArray[6];
-            int b = B(pixel);
-            return ((b >= 2) && ((b <= 6)) && (A(pixel) == 1) && (critheria1 == 0) && (critheria2 == 0));
+            int b = B(pixel, pixelArray);
+            return ((b >= 2) && ((b <= 6)) && (A(pixel, pixelArray) == 1) && (critheria1 == 0) && (critheria2 == 0));
         }
 
-        private bool DeletableOnSecondStep(Point pixel)
+        private bool DeletableOnSecondStep(Point pixel, int[] pixelArray)
         {
-            int[] pixelArray = CreatePixelArray(pixel);
             int critheria1 = pixelArray[0] * pixelArray[2] * pixelArray[6];
             int critheria2 = pixelArray[0] * pixelArray[4] * pixelArray[6];
-            int b = B(pixel);
-            return ((b >= 2) && ((b <= 6)) && (A(pixel) == 1) && (critheria1 == 0) && (critheria2 == 0));
+            int b = B(pixel,pixelArray);
+            return ((b >= 2) && ((b <= 6)) && (A(pixel,pixelArray) == 1) && (critheria1 == 0) && (critheria2 == 0));
         }
 
-        private int A(Point pixel)
+        private int A(Point pixel, int[] pixelArray)
         {
             int transitionCount = 0;
-            int[] pixelArray = CreatePixelArray(pixel);
             for (int i = 0; i < 7; i++)
             {
                 if ((pixelArray[i] == 0) && (pixelArray[i + 1] == 1))
@@ -189,10 +190,9 @@ namespace MRO_Cursach
             return transitionCount;
         }
 
-        private int B(Point pixel)
+        private int B(Point pixel, int[] pixelArray)
         {
             int transitionCount = 0;
-            int[] pixelArray = CreatePixelArray(pixel);
             for (int i = 0; i < 8; i++)
             {
                 if (pixelArray[i] == 1)
@@ -205,16 +205,16 @@ namespace MRO_Cursach
 
         private int[] CreatePixelArray(Point pixel)
         {
-            int[] rezult = new int[] { brightnessMatrix[pixel.X, pixel.Y-1],
-                brightnessMatrix[pixel.X+1, pixel.Y-1],
-                brightnessMatrix[pixel.X+1, pixel.Y],
-                brightnessMatrix[pixel.X+1, pixel.Y+1],
-                brightnessMatrix[pixel.X, pixel.Y+1],
-                brightnessMatrix[pixel.X-1, pixel.Y+1],
-                brightnessMatrix[pixel.X-1, pixel.Y],
-                brightnessMatrix[pixel.X-1, pixel.Y-1]};
-
-            return rezult;
+            int x = pixel.X;
+            int y = pixel.Y;
+            return new int[] { brightnessMatrix[x, y-1],
+                brightnessMatrix[x+1, y-1],
+                brightnessMatrix[x+1, y],
+                brightnessMatrix[x+1, y+1],
+                brightnessMatrix[x, y+1],
+                brightnessMatrix[x-1, y+1],
+                brightnessMatrix[x-1, y],
+                brightnessMatrix[x-1, y-1]};
         }
     }
 }
