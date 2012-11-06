@@ -118,5 +118,7 @@ namespace MRO_Cursach
             label14.Text = cf.Magnitude(letterImage)[3].ToString();
             label15.Text = cf.Magnitude(letterImage)[4].ToString();
         }
+        //Perceptron.AElement d;
+        
     }
 }
