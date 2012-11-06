@@ -8,9 +8,9 @@ namespace MRO_Cursach
 {
     class CritheriaFinder
     {
-        public int TerminalPixelsCount(Image letterImage)
+        public int[] TerminalPixelsCount(Image letterImage)
         {
-            int result = 0;
+            int[] result = new int[5];
             int[,] brightnessMatrix = FillBrightnessMatrix(letterImage);
             int imageWidth = letterImage.Width;
             int imageHeight = letterImage.Height;
@@ -21,10 +21,13 @@ namespace MRO_Cursach
                 {
                     if (brightnessMatrix[j, i] == 1)
                     {
-                        int[] pixelArray = CreatePixelArray(new Point(j, i), brightnessMatrix);
+                        Point pixelPoint = new Point(j, i);
+                        int[] pixelArray = CreatePixelArray(pixelPoint, brightnessMatrix);
                         if (IsTerminalPixel(pixelArray))
                         {
-                            result++;
+                            int quarter = Quarter(pixelPoint, imageWidth, imageHeight);
+                            result[quarter]++;
+                            result[0]++;
                         }
                     }
                 }
@@ -32,9 +35,33 @@ namespace MRO_Cursach
             return result;
         }
 
-        public int NodalPixelsCount(Image letterImage)
+        private int Quarter(Point pixel, int width, int height)
         {
-            int result = 0;
+            int x = pixel.X;
+            int y = pixel.Y;
+            int halfWidth = width / 2;
+            int halfHeigth = height / 2;
+            if ((x < halfWidth) && (y < halfHeigth))
+            {
+                return 1;
+            }
+            else if ((x >= halfWidth) && (y < halfHeigth))
+            {
+                return 2;
+            }
+            else if ((x < halfWidth) && (y >= halfHeigth))
+            {
+                return 3;
+            }
+            else
+            {
+                return 4;
+            }
+        }
+
+        public int[] NodalPixelsCount(Image letterImage)
+        {
+            int[] result = new int[5];
             int[,] brightnessMatrix = FillBrightnessMatrix(letterImage);
             int imageWidth = letterImage.Width;
             int imageHeight = letterImage.Height;
@@ -45,10 +72,13 @@ namespace MRO_Cursach
                 {
                     if (brightnessMatrix[j, i] == 1)
                     {
-                        int[] pixelArray = CreatePixelArray(new Point(j, i), brightnessMatrix);
+                        Point pixelPoint = new Point(j, i);
+                        int[] pixelArray = CreatePixelArray(pixelPoint, brightnessMatrix);
                         if (IsNodalPixel(pixelArray))
                         {
-                            result++;
+                            int quarter = Quarter(pixelPoint, imageWidth, imageHeight);
+                            result[quarter]++;
+                            result[0]++;
                         }
                     }
                 }
@@ -138,6 +168,40 @@ namespace MRO_Cursach
                 }
             }
             return bm;
+        }
+
+        public double Ratio(Image image)
+        {
+            int imageWidth = image.Width;
+            int imageHeight = image.Height;
+            return (double)imageHeight / (double)imageWidth;
+        }
+
+        public double[] Magnitude(Image image)
+        {
+            double[] result = new double[5];
+            int imageWidth = image.Width;
+            int imageHeight = image.Height;
+            int pixelsCount = imageWidth * imageHeight;
+            int[,] brightnessMatrix = FillBrightnessMatrix(image);
+            for (int i = 1; i < imageHeight + 1; i++)
+            {
+                for (int j = 1; j < imageWidth + 1; j++)
+                {
+                    if (brightnessMatrix[j, i] == 1)
+                    {
+                        Point pixelPoint = new Point(j, i);
+                        int quarter = Quarter(pixelPoint, imageWidth, imageHeight);
+                        result[quarter]++;
+                        result[0]++;
+                    }
+                }
+            }
+            for (int i = 0; i < 5; i++)
+            {
+                result[i] /= (double)pixelsCount;
+            }
+            return result;
         }
     }
 }

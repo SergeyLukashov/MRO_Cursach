@@ -122,39 +122,51 @@ namespace MRO_Cursach
 
         public Bitmap ZongaSunja(Bitmap image)
         {
-            brightnessMatrix = FillBrightnessMatrix(image);
-            Bitmap firstStepRezult = new Bitmap(image);
+            bool flag = false;
+            Bitmap result = new Bitmap(image);
             int imageWidth = image.Width;
             int imageHeight = image.Height;
+            int[,] localBrightnessMatrix = new int[imageWidth + 2, imageHeight + 2];
+            brightnessMatrix = FillBrightnessMatrix(image);
+            Array.Copy(brightnessMatrix, localBrightnessMatrix, brightnessMatrix.Length);
 
-            for (int i = 1; i < imageHeight + 1; i++)
+            while (flag != true)
             {
-                for (int j = 1; j < imageWidth + 1; j++)
+                flag = true;
+                
+                for (int i = 1; i < imageHeight + 1; i++)
                 {
-                    Point currentPoint = new Point(j, i);
-                    int[] pixelArray = CreatePixelArray(currentPoint);
-                    if (DeletableOnFirstStep(currentPoint, pixelArray))
+                    for (int j = 1; j < imageWidth + 1; j++)
                     {
-                        firstStepRezult.SetPixel(j - 1, i - 1, Color.White);
+                        Point currentPoint = new Point(j, i);
+                        int[] pixelArray = CreatePixelArray(currentPoint);
+                        if (localBrightnessMatrix[j, i] == 1 && DeletableOnFirstStep(currentPoint, pixelArray))
+                        {
+                            result.SetPixel(j - 1, i - 1, Color.White);
+                            localBrightnessMatrix[j, i] = 0;
+                            flag = false;
+                        }
                     }
                 }
-            }
 
-            Bitmap secondStepRezult = new Bitmap(firstStepRezult);
-            brightnessMatrix = FillBrightnessMatrix(firstStepRezult);
-            for (int i = 1; i < imageHeight + 1; i++)
-            {
-                for (int j = 1; j < imageWidth + 1; j++)
+                Array.Copy(localBrightnessMatrix, brightnessMatrix, brightnessMatrix.Length);
+                for (int i = 1; i < imageHeight + 1; i++)
                 {
-                    Point currentPoint = new Point(j, i);
-                    int[] pixelArray = CreatePixelArray(currentPoint);
-                    if (DeletableOnSecondStep(currentPoint, pixelArray))
+                    for (int j = 1; j < imageWidth + 1; j++)
                     {
-                        secondStepRezult.SetPixel(j - 1, i - 1, Color.White);
+                        Point currentPoint = new Point(j, i);
+                        int[] pixelArray = CreatePixelArray(currentPoint);
+                        if (localBrightnessMatrix[j, i] == 1 && DeletableOnSecondStep(currentPoint, pixelArray))
+                        {
+                            result.SetPixel(j - 1, i - 1, Color.White);
+                            localBrightnessMatrix[j, i] = 0;
+                            flag = false;
+                        }
                     }
                 }
+                Array.Copy(localBrightnessMatrix, brightnessMatrix, brightnessMatrix.Length);
             }
-            return secondStepRezult;
+            return result;
         }
 
         private bool DeletableOnFirstStep(Point pixel, int[] pixelArray)

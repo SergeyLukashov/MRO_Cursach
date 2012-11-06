@@ -27,7 +27,7 @@ namespace MRO_Cursach
         private void button1_Click(object sender, EventArgs e)
         {
             Stopwatch sw = new Stopwatch();
-            sw.Start();//1308
+            sw.Start();//1950 1665
 
             Blur blur = new Blur();
             //binImg = blur.GaussianBlur5((Bitmap)pictureBox1.Image);
@@ -38,8 +38,8 @@ namespace MRO_Cursach
             skelImg = bin.AdaptiveTreshold(binImg, s, trackBar1.Value);
 
             ImageWorker iw = new ImageWorker();
-            skelImg = (Bitmap)iw.DeleteSinglePixels(skelImg);
-            skelImg = (Bitmap)iw.FillSinglePixels(skelImg);
+            //skelImg = (Bitmap)iw.DeleteSinglePixels(skelImg);
+            //skelImg = (Bitmap)iw.FillSinglePixels(skelImg);
             for (int i = 0; i < 1; i++)
             {
                 skelImg = (Bitmap)iw.Extension(skelImg);
@@ -51,66 +51,72 @@ namespace MRO_Cursach
             this.Text = sw.ElapsedMilliseconds.ToString();
         }
 
-        int currentLetterIndex = 0;
-        List<Image> letters;
+        
         private void button2_Click(object sender, EventArgs e)//<<
         {
-            ImageWorker iw = new ImageWorker();//!!!!!!!!!!!!!
-            letters = iw.SplitToLetters(skelImg);
-            imageList1.Images.Clear();
-            imageList1.Images.AddRange(letters.ToArray());
-            int i = 0;
-            foreach(var letter in letters)
-            {
-                listView1.Items.Add("", i++);
-            }
-
             if (currentLetterIndex > 0)
             {
                 currentLetterIndex--;
-                //pictureBox4.Image = letters[currentLetter];
             }
-            pictureBox4.Image = letters[currentLetterIndex];
-            CritheriaFinder cf=new CritheriaFinder();
-            label1.Text = cf.TerminalPixelsCount(letters[currentLetterIndex]).ToString();
-            label2.Text = cf.NodalPixelsCount(letters[currentLetterIndex]).ToString();
+            DrawCritheria(letters[currentLetterIndex]);
         }
 
         private void button3_Click(object sender, EventArgs e)//>>
         {
-            ImageWorker iw = new ImageWorker();//!!!!!!!!!!!!!
-            letters = iw.SplitToLetters(skelImg);
-            
-
             if (currentLetterIndex < letters.Count-1)
             {
                 currentLetterIndex++;
             }
-            pictureBox4.Image = letters[currentLetterIndex];
-            CritheriaFinder cf = new CritheriaFinder();
-            label1.Text = cf.TerminalPixelsCount(letters[currentLetterIndex]).ToString();
-            label2.Text = cf.NodalPixelsCount(letters[currentLetterIndex]).ToString();
+            DrawCritheria(letters[currentLetterIndex]);
         }
 
+        int currentLetterIndex = 0;
+        List<Image> letters;
         private void button4_Click(object sender, EventArgs e)
         {
             Stopwatch sw = new Stopwatch();
-            sw.Start();//5542 4804
+            sw.Start();//5542 4804 2892 2667 / 396
 
             Skeletonizator s = new Skeletonizator();
-            for (int i = 0; i < 18; i++)
-            {
-                skelImg = s.ZongaSunja((Bitmap)skelImg);
-            }
-            pictureBox3.Image = skelImg;
+            pictureBox3.Image = skelImg = s.ZongaSunja((Bitmap)skelImg);
 
             sw.Stop();
             this.Text = sw.ElapsedMilliseconds.ToString();
+
+            ImageWorker iw = new ImageWorker();
+            letters = iw.SplitToLetters(skelImg);
         }
 
         private void button5_Click(object sender, EventArgs e)
         {
             pictureBox4.Image.Save("temp.jpg");
+        }
+
+        private void DrawCritheria(Image letterImage)
+        {
+            pictureBox4.Image = letterImage;
+
+            CritheriaFinder cf = new CritheriaFinder();
+            label1.Text = cf.TerminalPixelsCount(letterImage)[0].ToString();
+            label2.Text = cf.NodalPixelsCount(letterImage)[0].ToString();
+
+            label3.Text = cf.TerminalPixelsCount(letterImage)[1].ToString();
+            label4.Text = cf.TerminalPixelsCount(letterImage)[2].ToString();
+            label5.Text = cf.TerminalPixelsCount(letterImage)[3].ToString();
+            label6.Text = cf.TerminalPixelsCount(letterImage)[4].ToString();
+
+            label7.Text = cf.NodalPixelsCount(letterImage)[1].ToString();
+            label8.Text = cf.NodalPixelsCount(letterImage)[2].ToString();
+            label9.Text = cf.NodalPixelsCount(letterImage)[3].ToString();
+            label10.Text = cf.NodalPixelsCount(letterImage)[4].ToString();
+
+            label11.Text = cf.Ratio(letterImage).ToString();
+
+            label16.Text = cf.Magnitude(letterImage)[0].ToString();
+            label12.Text = cf.Magnitude(letterImage)[1].ToString();
+            label13.Text = cf.Magnitude(letterImage)[2].ToString();
+            label14.Text = cf.Magnitude(letterImage)[3].ToString();
+            label15.Text = cf.Magnitude(letterImage)[4].ToString();
         }
     }
 }
